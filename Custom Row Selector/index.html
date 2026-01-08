@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Row Selector Widget</title>
+  <style>
+    body { font-family: sans-serif; padding: 10px; }
+    .row-item {
+      padding: 6px;
+      border-bottom: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .row-item:hover {
+      background-color: #f0f0f0;
+    }
+    .selected {
+      background-color: #d0ebff;
+    }
+  </style>
+</head>
+<body>
+  <h3>Custom Row Selector</h3>
+  <div id="rows"></div>
+
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <script>
+    let currentRowId = null;
+
+    // Listen for table data from Grist
+    grist.onRecords(records => {
+      const container = document.getElementById('rows');
+      container.innerHTML = '';
+
+      records.forEach(record => {
+        const div = document.createElement('div');
+        div.className = 'row-item';
+        div.textContent = `Row ${record.id}: ${JSON.stringify(record)}`;
+        div.onclick = () => {
+          grist.setCursor(record.id); // Change selection in Grist
+        };
+        container.appendChild(div);
+      });
+    });
+
+    // Highlight the currently selected row
+    grist.onRecord(record => {
+      currentRowId = record?.id || null;
+      document.querySelectorAll('.row-item').forEach(el => {
+        el.classList.toggle('selected', el.textContent.startsWith(`Row ${currentRowId}:`));
+      });
+    });
+  </script>
+</body>
+</html>
